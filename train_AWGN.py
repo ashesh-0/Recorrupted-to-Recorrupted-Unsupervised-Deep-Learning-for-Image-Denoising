@@ -8,9 +8,11 @@ import torchvision.utils as utils
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from models import DnCNN
-from dataset import prepare_data, Dataset_train, Dataset_val
+# from dataset import prepare_data, Dataset_train, Dataset_val
 from utils import *
 from datetime import datetime
+from dataset_real import MultiChDloader as HagenDataset
+from data_split_type import DataSplitType
 
 parser = argparse.ArgumentParser(description="DnCNN")
 parser.add_argument("--prepare_data", action='store_true',  help='run prepare_data or not')
@@ -28,7 +30,9 @@ parser.add_argument("--gpu", type=int, default=0, help="gpu number")
 parser.add_argument("--training", type=str, default="R2R", help='trainnig type')
 
 
-
+hagen_fpath = ''
+hagen_val_fraction = 0.1
+hagen_test_fraction = 0.1
 
 
 def main():
@@ -36,9 +40,11 @@ def main():
     print('Loading dataset ...\n')
     
 
-    sigma = opt.noiseL
-    dataset_train = Dataset_train('train_sigma_%d' %sigma)
-    dataset_val = Dataset_val('val_%d_Set68' %sigma)
+    # sigma = opt.noiseL
+    dataset_train  = HagenDataset(hagen_fpath, DataSplitType.Train, val_fraction=hagen_val_fraction,test_fraction=hagen_test_fraction, enable_random_cropping=True,)
+    dataset_val  = HagenDataset(hagen_fpath, DataSplitType.Val, val_fraction=hagen_val_fraction,test_fraction=hagen_test_fraction, enable_random_cropping=False)
+    # dataset_train = Dataset_train('train_sigma_%d' %sigma)
+    # dataset_val = Dataset_val('val_%d_Set68' %sigma)
     loader_train = DataLoader(dataset=dataset_train, num_workers=4, batch_size=opt.batchSize, shuffle=False)
     
     print("# of training samples: %d\n" % int(len(dataset_train)))
